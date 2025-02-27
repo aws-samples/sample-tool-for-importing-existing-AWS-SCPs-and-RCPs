@@ -76,34 +76,34 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
 
 Below are the common errors you may encounter while running the tool. If any of the following error occurs, please follow the suggested resolution steps and rerun the tool afterward.
 
-1. Error: An error occurred (UnrecognizedClientException) when calling the ListPolicies operation: The security token included in the request is invalid.
+1. **Error:** An error occurred (UnrecognizedClientException) when calling the ListPolicies operation: The security token included in the request is invalid.
     * Description: The tool expects a valid IAM credentials attached to a IAM principal profile that will be used for authentication purposes.
     * Resolution: 
         * If you did not pass any profile name in the step 4 ensure that you have a valid default profile setup in the file ~./aws/config. 
         * If you did pass a profile name in the step ensure 4 ensure that you have that profile name setup in the file ~./aws/config.  
 
-2. Error: Error starting resource scan
+2. **Error:** Error starting resource scan
     * Description: An issue occurred while starting the [Cloudformation IaC generator resource scan](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/iac-generator-start-resource-scan.html). 
     * Resolution: 
         * Verify that the IAM principal in use has the necessary permissions, as outlined in step 4 under the Solution Deployment.
         * Ensure that you haven’t exceeded the daily scan limits. Refer to the [IaC generator considerations](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/generate-IaC.html#iac-generator-considerations) for more details on the allowed number of scans per day. The ResourceScan usage limit has be en exceeded. Accounts with less than 10,000 resources can have up to 3 successful ResourceScans per day.
 
-3. Error: CloudFormation IaC Generator failed to detect all AWS Organizations policies.
+3. **Error:** CloudFormation IaC Generator failed to detect all AWS Organizations policies.
     * Description: The CloudFormation IaC Generator was unable to detect all the AWS Organizations policies.
     * Resolution: Login to the AWS CloudFormation Console and verify that all AWS Organizations policies are properly detected by the scan. Ensure that all relevant policies are listed and accounted for in the scan results.
 
-4. Error: No policies were detected by the Cloudformation IaC scan. Either there are no organizations policies or you do not have enough permissions or a delegated administrator is setup.
+4. **Error:** No policies were detected by the Cloudformation IaC scan. Either there are no organizations policies or you do not have enough permissions or a delegated administrator is setup.
     * Description: The CloudFormation IaC Generator was unable to detect any AWS Organizations policies.
     * Resolution: 
         * Check if you have any existing AWS SCPs RCPs to import using [AWS Organizations console](https://console.aws.amazon.com/organizations/v2). 
         * Make sure you are running this tool using correct account. If you have enabled delegated administrator for policy management in your organization you should use IAM principal profile from delegated administrator account. Check the delegated account details by sign in to the [AWS Organizations console](https://console.aws.amazon.com/organizations/v2) and choosing “Settings”.
         * You might also see this error if the delegation feature was enabled in past and then removed without de-registering the delegated administrator account. See this [link](https://repost.aws/knowledge-center/organizations-remove-delegated-admin) to finish the de-registration process if required.
 
-5. Error: Template: `<template_name>`. Reason: `<Status>`
+5. **Error:** Template: `<template_name>`. Reason: `<Status>`
     * Description: The failure reason will be provided in the error message. You may encounter limitations related to template size. For example error: Template exceeds 1000000 bytes in size or Template size limit of 1 MB is exceeded.
     * Resolution: Incase of failure due to quotas, no action is needed. The tool is designed to automatically split the content of a template into two separate templates if the creation fails due to size quotas. You will see a message indicating: “Deleting template & splitting the resources into 2 different templates.”
 
-6. Error: Error retrieving recent scan details: `<ResourceScanName>`
+6. **Error:** Error retrieving recent scan details: `<ResourceScanName>`
     * Description: This error typically indicates that the scan has either not completed successfully or does not exist.
     * Resolution: Log in to the AWS CloudFormation Management Console, navigate to the IaC Generator, and check the scan status.
 
