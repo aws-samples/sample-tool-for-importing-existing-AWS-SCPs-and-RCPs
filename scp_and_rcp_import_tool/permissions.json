@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "organizations:DescribePolicy",
+                "organizations:ListTargetsForPolicy",
+                "organizations:ListPolicies",
+                "cloudformation:CreateGeneratedTemplate",
+                "cloudformation:StartResourceScan",
+                "cloudformation:UpdateGeneratedTemplate",
+                "cloudformation:CreateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:DeleteGeneratedTemplate"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
