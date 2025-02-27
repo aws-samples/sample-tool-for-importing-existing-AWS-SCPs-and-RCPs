@@ -5,7 +5,7 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
 ![solutions_overview](solutions_overview.png "Solutions overview")
 
 
-**Consideration before implementing the solution**
+**Considerations before implementing the solution**
 
 1. If you have enabled the [AWS Organizations policy management delegation](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html), you should run this solution from the delegated administrator account. 
 
