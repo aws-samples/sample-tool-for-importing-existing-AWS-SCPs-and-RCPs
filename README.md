@@ -1,30 +1,26 @@
-**Existing AWS SCPs and RCPs import tool**
+## Existing AWS SCPs and RCPs import tool
 
 A sample command line tool to import existing SCPs and RCPs into AWS CloudFormation templates using CloudFormation infrastructure as code generator (IaC generator). This allows you to to automate the management of your SCPs and RCPs at scale. The following figure provides the end-to-end flow:
 
 ![solutions_overview](solutions_overview.png "Solutions overview")
 
 
-**Considerations before implementing the solution**
+## Considerations before implementing the solution
 
-1. If you have enabled the [AWS Organizations policy management delegation](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html), you should run this solution from the delegated administrator account. 
-
+1. If you have enabled the [AWS Organizations policy management delegation](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html), you should run this solution from the delegated administrator account. Otherwise, you can run the solution using the management account.
     **Note:** [Delegating management of organizations policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html) to a delegated administrator member account is recommended best practice.
 
-2. Control Tower SCPs and RCPs will not be imported to the CloudFormation templates as they should be managed using Control Tower. [Changes made to Control Tower resources](https://docs.aws.amazon.com/controltower/latest/userguide/walkthrough-delete.html) outside of Control Tower can cause drift and affect AWS Control Tower functionality in unpredictable ways.
+2. AWS Control Tower SCPs and RCPs (with or without targets) won’t be imported to the CloudFormation templates because they should be managed using AWS Control Tower.  [Changes made to Control Tower resources](https://docs.aws.amazon.com/controltower/latest/userguide/walkthrough-delete.html) outside of Control Tower can cause drift and affect AWS Control Tower functionality in unpredictable ways.
 
-3. [FullAWSAccess](https://console.aws.amazon.com/organizations/?#/policies/p-FullAWSAccess) SCP and [RCPFullAWSAccess](https://677276094262-lagb2dh4.us-east-1.console.aws.amazon.com/organizations/v2/home/policies/resource-control-policy/p-RCPFullAWSAccess) RCP are [AWS managed policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_available-policies.html) will not be imported to the CloudFormation as CloudFormation stacks do not allow importing of AWS managed resources.
+3. [FullAWSAccess](https://console.aws.amazon.com/organizations/?#/policies/p-FullAWSAccess) SCP and [RCPFullAWSAccess](https://677276094262-lagb2dh4.us-east-1.console.aws.amazon.com/organizations/v2/home/policies/resource-control-policy/p-RCPFullAWSAccess) RCP are [AWS managed policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_available-policies.html) that won’t be imported to CloudFormation because CloudFormation stacks do not allow importing AWS managed resources.
 
-4. You might see multiple CloudFormation templates created if you exceed the [CloudFormation template size quotas](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html). To ensure smooth creation, the tool is designed to automatically split the content into multiple templates if necessary, allowing you to stay within the quotas while still accommodating all the imported content. 
+4. You might see multiple CloudFormation templates created if you exceed the [CloudFormation template size quotas](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html). To help ensure smooth creation, the tool is designed to automatically split the content into multiple templates if necessary, allowing you to stay within the quotas while still accommodating all the imported content. 
 
 5. Note that the generated templates have following attributes set by default.
     * [Deletion policy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html?icmpid=docs_cfn_console): Set to ‘Retain’. This enables persisting the policies even when its related stack is deleted.
     * [Update Replace policy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatereplacepolicy.html?icmpid=docs_cfn_console): Set to ‘Delete’. This enables delete of the physical id associated with the policy when the policy is updated. 
 
-
-
-
-**Solution deployment**
+## Solution deployment
 
 1. Clone the solution repository
 
@@ -39,40 +35,34 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
     `pip install .`
 
 4. If you want to use a particular IAM principal to run this tool, create a [profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) in  `~./aws/config` using an IAM principal from your [AWS Organizations management account](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html). If you have delegated SCP management to a member account, ensure you use the IAM principal from the [delegated administrator account](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html). 
+    **Note:** The IAM principal will need to have [these permissions](scp_and_rcp_import_tool/permissions.json) to be able to successfully run the tool.   
 
-    **Note:** The IAM principal will need to have following permissions to be able to successfully run the tool. 
-
-    * [ReadOnlyAccess](https://console.aws.amazon.com/iam/home#policies/arn:aws:iam::aws:policy/ReadOnlyAccess) from [AWS managed policies for job functions](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html) for the Cloudformation IaC generator to scan all resources in your account. 
-    * Additionally [these permissions](scp_and_rcp_import_tool/permissions.json) are needed by the tool to get the organizations policy details and create templates. 
-
-5. You can run the tool specifying a profile name as a command line argument. Use the command below, replacing `<profile_name>` with the name of the profile you created in step 2. If you do not specify a profile, default profile from the file  `~./aws/config` will be used.
+5. You can run the tool specifying a profile name as a command line argument. Use the following command, replacing `<profile_name>` with the name of the profile you created in step 2. If you do not specify a profile, the default profile from the file `~./aws/config` will be used.
 
     `policy-importer --profile <profile_name>`
 
-6. Once the command above is executed, you will see an output displaying the total number of SCPs and RCPs found in the organization. The output will also list any Control Tower managed policies, as well as policies without targets. At this point, you can choose "Yes" to proceed proceed with scanning to import the policies, or type "No" if you wish to exit.
-
-    **Note:** If policies without targets are detected, we recommend stopping here. Either delete the policies without targets or assign appropriate targets to them. You can then rerun the tool from the beginning.
+6. After the preceding command is executed, you will see an output displaying the total number of SCPs and RCPs found in the organization. The output will also list any AWS Control Tower managed policies as INFO, in addition to policies without targets as a WARNING. At this point, you can enter Yes to proceed with scanning to import the policies, or enter No if you want to exit.
+    **Note:** If policies without targets are detected, we recommend stopping at this point. Either delete the policies without targets or assign appropriate targets to them. You can then rerun the tool from step 5. If you proceed without addressing the policies without targets, be aware that these policies will also be included in the CloudFormation template.
 
 7. If you choose to proceed with the CloudFormation Infrastructure as Code (IaC) resource scan, the scan will begin immediately. 
+    **Note:** A scan can take up to 10 minutes for every 1,000 resources. 
 
-    **Note:** A scan can take up to 10 minutes for every 1,000 resources. The IaC generator currently scans all resources in the account.
-
-8. You can also review the scan progress from the [IaC generator page](https://console.aws.amazon.com/cloudformation/home?#iac-generator) of the CloudFormation console.
+8. You can also review the scan progress from the [IaC generator page](https://console.aws.amazon.com/cloudformation/home?#iac-generator) of the CloudFormation console.To get to the IaC generator page, go to the CloudFormation console and choose IaC generator from the navigation pane.
 
 9. Upon completion of the scan, the template generation process will be initiated.  
 
-10. After the template creation is finished, log in to the [AWS CloudFormation IaC console](https://console.aws.amazon.com/cloudformation/home?#iac-generator). Review the generated templates to ensure they meet your requirements. 
+10. After the template creation is finished, log in to the [AWS CloudFormation IaC console](https://console.aws.amazon.com/cloudformation/home?#iac-generator). Choose the Templates tab to review the generated templates and verify that they meet your requirements. 
 
-11. Review the policies added to the template by clicking on the template name for additional insight.
+11. You can review the policies added to a template by selecting a template name.
 
-12. Once satisfied, you can proceed to import the templates into CloudFormation stacks for deployment. 
+12. When satisfied, you can proceed to import the templates into CloudFormation stacks for deployment by selecting Import to stack. 
 
-13. Follow prompts to create a stack.
+13. Follow the prompts to create a stack.
 
-14. The tool automatically creates a “Policies” folder in your current directory and downloads all the generated templates. 
+14. The tool automatically creates a folder named Policies in your current directory and downloads the generated templates.  
 
 
-**Error handling**
+## Error handling
 
 Below are the common errors you may encounter while running the tool. If any of the following error occurs, please follow the suggested resolution steps and rerun the tool afterward.
 
