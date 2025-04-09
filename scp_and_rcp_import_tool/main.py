@@ -78,7 +78,13 @@ def validate_policies_from_organizations(args=None):
     
 def start_resource_scan(cfn_client):
     try:
-        response = cfn_client.start_resource_scan()
+        response = cfn_client.start_resource_scan(
+                ScanFilters=[
+                    {
+                        'Types': ['AWS::Organizations::Policy']
+                    }
+                ]
+        )
         resource_scan_id = response['ResourceScanId']
         logger.info(f"Resource scan started with ID: {resource_scan_id}")
         print("IaCToolScan initiated. Checking for scan completion...")

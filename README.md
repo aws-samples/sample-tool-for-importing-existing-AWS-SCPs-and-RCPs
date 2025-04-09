@@ -8,6 +8,7 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
 ## Considerations before implementing the solution
 
 1. If you have enabled the [AWS Organizations policy management delegation](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html), you should run this solution from the delegated administrator account. Otherwise, you can run the solution using the management account.
+
     **Note:** [Delegating management of organizations policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html) to a delegated administrator member account is recommended best practice.
 
 2. AWS Control Tower SCPs and RCPs (with or without targets) won’t be imported to the CloudFormation templates because they should be managed using AWS Control Tower.  [Changes made to Control Tower resources](https://docs.aws.amazon.com/controltower/latest/userguide/walkthrough-delete.html) outside of Control Tower can cause drift and affect AWS Control Tower functionality in unpredictable ways.
@@ -35,6 +36,7 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
     `pip install .`
 
 4. If you want to use a particular IAM principal to run this tool, create a [profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) in  `~./aws/config` using an IAM principal from your [AWS Organizations management account](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html). If you have delegated SCP management to a member account, ensure you use the IAM principal from the [delegated administrator account](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_delegate_policies.html). 
+    
     **Note:** The IAM principal will need to have [these permissions](scp_and_rcp_import_tool/permissions.json) to be able to successfully run the tool.   
 
 5. You can run the tool specifying a profile name as a command line argument. Use the following command, replacing `<profile_name>` with the name of the profile you created in step 2. If you do not specify a profile, the default profile from the file `~./aws/config` will be used.
@@ -42,9 +44,11 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
     `policy-importer --profile <profile_name>`
 
 6. After the preceding command is executed, you will see an output displaying the total number of SCPs and RCPs found in the organization. The output will also list any AWS Control Tower managed policies as INFO, in addition to policies without targets as a WARNING. At this point, you can enter Yes to proceed with scanning to import the policies, or enter No if you want to exit.
+    
     **Note:** If policies without targets are detected, we recommend stopping at this point. Either delete the policies without targets or assign appropriate targets to them. You can then rerun the tool from step 5. If you proceed without addressing the policies without targets, be aware that these policies will also be included in the CloudFormation template.
 
 7. If you choose to proceed with the CloudFormation Infrastructure as Code (IaC) resource scan, the scan will begin immediately. 
+    
     **Note:** A scan can take up to 10 minutes for every 1,000 resources. 
 
 8. You can also review the scan progress from the [IaC generator page](https://console.aws.amazon.com/cloudformation/home?#iac-generator) of the CloudFormation console.To get to the IaC generator page, go to the CloudFormation console and choose IaC generator from the navigation pane.
