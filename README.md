@@ -39,7 +39,7 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
     
     **Note:** The IAM principal will need to have [these permissions](scp_and_rcp_import_tool/permissions.json) to be able to successfully run the tool.   
 
-5. You can run the tool specifying a profile name as a command line argument. Use the following command, replacing `<profile_name>` with the name of the profile you created in step 2. If you do not specify a profile, the default profile from the file `~./aws/config` will be used.
+5. You can run the tool specifying a profile name as a command line argument. Use the following command, replacing `<profile_name>` with the name of the profile you created in step 4. If you do not specify a profile, the default profile from the file `~./aws/config` will be used.
 
     `policy-importer --profile <profile_name>`
 
