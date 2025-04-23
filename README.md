@@ -25,7 +25,7 @@ A sample command line tool to import existing SCPs and RCPs into AWS CloudFormat
 
 1. Clone the solution repository
 
-    `https://github.com/aws-samples/sample-tool-for-importing-existing-AWS-SCPs-and-RCPs`
+    `git clone https://github.com/aws-samples/sample-tool-for-importing-existing-AWS-SCPs-and-RCPs`
 
 2. Navigate to the directory of the cloned repository. 
 
@@ -89,7 +89,7 @@ Below are the common errors you may encounter while running the tool. If any of 
 4. **Error:** No policies were detected by the Cloudformation IaC scan. Either there are no organizations policies or you do not have enough permissions or a delegated administrator is setup.
     * Description: The CloudFormation IaC Generator was unable to detect any AWS Organizations policies.
     * Resolution: 
-        * Check if you have any existing AWS SCPs RCPs to import using [AWS Organizations console](https://console.aws.amazon.com/organizations/v2). 
+        * Check if you have any existing AWS SCPs and RCPs to import using [AWS Organizations console](https://console.aws.amazon.com/organizations/v2). 
         * Make sure you are running this tool using correct account. If you have enabled delegated administrator for policy management in your organization you should use IAM principal profile from delegated administrator account. Check the delegated account details by sign in to the [AWS Organizations console](https://console.aws.amazon.com/organizations/v2) and choosing “Settings”.
         * You might also see this error if the delegation feature was enabled in past and then removed without de-registering the delegated administrator account. See this [link](https://repost.aws/knowledge-center/organizations-remove-delegated-admin) to finish the de-registration process if required.
 
